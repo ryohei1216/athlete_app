@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	jwtmiddleware "github.com/auth0/go-jwt-middleware"
 	jwt "github.com/form3tech-oss/jwt-go"
 )
 
@@ -29,6 +30,14 @@ func GetTOkenHandler(w http.ResponseWriter, r *http.Request) {
 	//JWTを返却
 	w.Write([]byte(tokenString))
 }
+
+// JwtMiddleware check token
+var JwtMiddleware = jwtmiddleware.New(jwtmiddleware.Options{
+    ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
+        return []byte(os.Getenv("SIGNINGKEY")), nil
+    },
+    SigningMethod: jwt.SigningMethodHS256,
+})
 
 
 
