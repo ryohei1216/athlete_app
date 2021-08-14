@@ -1,0 +1,31 @@
+{{define "content"}}
+<h1>アスリート名鑑</h1>
+<h2>美女ランキング</h2>
+<div class="views">
+  <div class="person">
+    <img
+      src="https://www.rikujyokyogi.co.jp/wp-content/uploads/2021/03/EN4A0178.jpg"
+      alt=""
+    />
+    <p>テキストテキストテキストテキストテキストテキスト</p>
+    <p>テキストテキストテキストテキストテキストテキスト</p>
+  </div>
+  {{ range . }}
+  <div class="person">
+    <img src="/static/images/{{ .Filename }}" />
+    <p>テキストテキストテキストテキストテキストテキスト</p>
+    <p>テキストテキストテキストテキストテキストテキスト</p>
+    <a href="http://127.0.0.1:8080/evaluate?id={{.Id}}&preference=good"
+      >Good {{.Good}}</a
+    >
+    <a href="http://127.0.0.1:8080/evaluate?id={{.Id}}&preference=nope"
+      >Nope {{.Nope}}</a
+    >
+    <a
+      href="http://127.0.0.1:8080/delete?id={{.Id}}&race={{.Race}}&filename={{.Filename}}"
+      >削除</a
+    >
+  </div>
+  {{ end }}
+</div>
+{{end}}

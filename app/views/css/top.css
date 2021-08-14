@@ -1,0 +1,12 @@
+.views {
+  display: flex;
+}
+
+.person {
+  width: 20%;
+  padding: 0 15px;
+}
+
+.person img {
+  width: 100%;
+}

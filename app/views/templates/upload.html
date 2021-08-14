@@ -1,0 +1,14 @@
+{{define "content"}}
+<h1>upload</h1>
+<form
+  action="http://127.0.0.1:8080/upload/uploading"
+  enctype="multipart/form-data"
+  method="post"
+>
+  <input type="file" name="uploading" />
+  <input type="radio" name="race" value="asian" />アジア系
+  <input type="radio" name="race" value="white" />白人
+  <input type="radio" name="race" value="black" />黒人
+  <input type="submit" />
+</form>
+{{end}}
