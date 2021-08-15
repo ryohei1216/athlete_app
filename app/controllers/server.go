@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"main/app/models"
@@ -168,20 +167,6 @@ func signUp (w http.ResponseWriter, r *http.Request) {
 	
 }
 
-type Post struct {
-	Title string `json:"title"`
-  Tag   string `json:"tag"`
-  URL   string `json:"url"`
-}
-
-func auth (w http.ResponseWriter, r *http.Request) {
-	post := &Post {
-		Title: "VueCLIからVue.js入門①【VueCLIで出てくるファイルを概要図で理解】",
-    Tag:   "Vue.js",
-    URL:   "https://qiita.com/po3rin/items/3968f825f3c86f9c4e21",
-	}
-	json.NewEncoder(w).Encode(post)
-}
 
 
 func InitServer() {
@@ -196,7 +181,9 @@ func InitServer() {
 	http.HandleFunc("/upload/uploading", uploading)
 	http.HandleFunc("/delete", delete)
 	http.HandleFunc("/evaluate", evaluate)
-	http.HandleFunc("/auth", auth)
+	// http.HandleFunc("/public", models.Public)
+	// http.Handle("/private", models.JwtMiddleware.Handler(models.Private))
+	// http.HandleFunc("/auth", models.GetTOkenHandler)
 
   http.ListenAndServe("127.0.0.1:8080", nil)
 }
