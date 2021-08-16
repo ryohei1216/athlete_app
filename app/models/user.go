@@ -12,22 +12,22 @@ type User struct {
 }
 
 
-
 //SignUp
 func (user *User) SignUp() {
 	cmd := "SELECT * FROM users where mail = $1"
 	//userを更新するかも？しないほうがいい？
 	//データがあるか確認
-	err := db.QueryRow(cmd, user.Mail).Scan(user.Name, user.Mail, user.Password)
-	if err == nil {
+	checkMail := user.Mail
+	_ = db.QueryRow(cmd, user.Mail).Scan(user.Name, user.Mail, user.Password)
+	if checkMail == user.Mail {
 		fmt.Println(user.Mail)
 		fmt.Println("同じメールアドレスで登録されています")
 		return
 	}
 
 	cmd = "INSERT INTO users VALUES ($1, $2, $3)"
-	cmd2 := "CREATE TABLE IF NOT EXISTS $1"
-	_, err = db.Exec(cmd, user.Name, user.Mail, user.Password)
+	cmd2 := "CREATE TABLE IF NOT EXISTS $1 (favorite varchar(50))"
+	_, err := db.Exec(cmd, user.Name, user.Mail, user.Password)
 	if err != nil {
 		fmt.Println("データ挿入失敗")
 	}
@@ -44,8 +44,6 @@ func (user *User) Login() {
 	if err != nil {
 		fmt.Println("mail または password が間違っています。")
 	}
-	
-
 }
 
 //特定のユーザーの取得(Id)

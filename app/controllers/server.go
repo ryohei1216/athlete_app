@@ -162,9 +162,20 @@ func evaluate(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, race, http.StatusFound)
 }
 
-//SignUpのAPI
+//SignUp
 func signUp (w http.ResponseWriter, r *http.Request) {
-	
+	generateHTML(w, nil, "layout", "signup", "header")
+}
+
+//登録するAPI
+func register (w http.ResponseWriter, r *http.Request) {
+	var user = models.User {
+		Name: r.FormValue("name"),
+		Mail: r.FormValue("mail"),
+		Password: r.FormValue("password"),
+	}
+	fmt.Fprintln(w, user)
+	user.SignUp()
 }
 
 
@@ -181,6 +192,8 @@ func InitServer() {
 	http.HandleFunc("/upload/uploading", uploading)
 	http.HandleFunc("/delete", delete)
 	http.HandleFunc("/evaluate", evaluate)
+	http.HandleFunc("/signup", signUp)
+	http.HandleFunc("/register", register)
 	// http.HandleFunc("/public", models.Public)
 	// http.Handle("/private", models.JwtMiddleware.Handler(models.Private))
 	// http.HandleFunc("/auth", models.GetTOkenHandler)
