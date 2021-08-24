@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"log"
+	"net/http"
 )
 
 type User struct {
@@ -13,25 +14,23 @@ type User struct {
 
 
 //SignUp
-func (user *User) SignUp() {
+func (user User) SignUp(w http.ResponseWriter) {
 	cmd := "SELECT * FROM users where mail = $1"
 	//userを更新するかも？しないほうがいい？
 	//データがあるか確認
-	checkMail := user.Mail
-	_ = db.QueryRow(cmd, user.Mail).Scan(user.Name, user.Mail, user.Password)
-	if checkMail == user.Mail {
-		fmt.Println(user.Mail)
-		fmt.Println("同じメールアドレスで登録されています")
+	err := db.QueryRow(cmd, user.Mail).Scan(&user.Name, &user.Mail, &user.Password)
+	if err == nil {
+		fmt.Fprintln(w,"同じメールアドレスで登録されています")
 		return
 	}
 
 	cmd = "INSERT INTO users VALUES ($1, $2, $3)"
-	cmd2 := "CREATE TABLE IF NOT EXISTS $1 (favorite varchar(50))"
-	_, err := db.Exec(cmd, user.Name, user.Mail, user.Password)
+	cmd2 := "CREATE TABLE IF NOT EXISTS " + user.Mail + "(good_list varchar(50))"
+	_, err = db.Exec(cmd, user.Name, user.Mail, user.Password)
 	if err != nil {
 		fmt.Println("データ挿入失敗")
 	}
-	_, err = db.Exec(cmd2, user.Mail)
+	_, err = db.Exec(cmd2)
 	if err != nil {
 		log.Println(err)
 	}

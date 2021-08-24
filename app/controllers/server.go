@@ -175,7 +175,7 @@ func register (w http.ResponseWriter, r *http.Request) {
 		Password: r.FormValue("password"),
 	}
 	fmt.Fprintln(w, user)
-	user.SignUp()
+	user.SignUp(w)
 }
 
 
