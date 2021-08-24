@@ -37,11 +37,13 @@ func (user User) SignUp(w http.ResponseWriter) {
 }
 
 //Login
-func (user *User) Login() {	
+func (user User) Login(w http.ResponseWriter) {	
 	cmd := "SELECT * FROM users WHERE mail = $1 AND password = $2"
-	err := db.QueryRow(cmd, user.Mail, user.Password)
+	err := db.QueryRow(cmd, user.Mail, user.Password).Scan(&user.Name, &user.Mail, &user.Password)
 	if err != nil {
-		fmt.Println("mail または password が間違っています。")
+		fmt.Fprintln(w, "mail または password が間違っています。")
+	} else {
+		fmt.Fprintln(w, "ログイン成功")
 	}
 }
 

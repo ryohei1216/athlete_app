@@ -178,6 +178,19 @@ func register (w http.ResponseWriter, r *http.Request) {
 	user.SignUp(w)
 }
 
+func login (w http.ResponseWriter, r *http.Request) {
+	generateHTML(w, nil, "layout", "login", "header")
+}
+
+//ログインするAPI
+func logging (w http.ResponseWriter, r *http.Request) {
+	var user = models.User {
+		Mail: r.FormValue("mail"),
+		Password: r.FormValue("password"),
+	}
+	user.Login(w)
+}
+
 
 
 func InitServer() {
@@ -194,6 +207,8 @@ func InitServer() {
 	http.HandleFunc("/evaluate", evaluate)
 	http.HandleFunc("/signup", signUp)
 	http.HandleFunc("/register", register)
+	http.HandleFunc("/login", login)
+	http.HandleFunc("/logging", logging)
 	// http.HandleFunc("/public", models.Public)
 	// http.Handle("/private", models.JwtMiddleware.Handler(models.Private))
 	// http.HandleFunc("/auth", models.GetTOkenHandler)
