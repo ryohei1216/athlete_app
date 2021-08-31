@@ -188,9 +188,12 @@ func logging (w http.ResponseWriter, r *http.Request) {
 		Mail: r.FormValue("mail"),
 		Password: r.FormValue("password"),
 	}
-	user.Login(w)
-}
 
+	isLogin := user.Login(w)
+	if isLogin {
+		setCookie(w, r, user)
+	}
+}
 
 
 func InitServer() {
@@ -209,9 +212,6 @@ func InitServer() {
 	http.HandleFunc("/register", register)
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/logging", logging)
-	// http.HandleFunc("/public", models.Public)
-	// http.Handle("/private", models.JwtMiddleware.Handler(models.Private))
-	// http.HandleFunc("/auth", models.GetTOkenHandler)
 
   http.ListenAndServe("127.0.0.1:8080", nil)
 }
