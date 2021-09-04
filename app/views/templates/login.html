@@ -1,0 +1,12 @@
+{{define "content"}}
+<h1>Login</h1>
+<form
+  action="http://127.0.0.1:8080/logging"
+  enctype="application/x-www-form-urlencoded"
+  method="post"
+>
+  <input type="text" name="mail" />
+  <input type="text" name="password" />
+  <input type="submit" value="ログイン" />
+</form>
+{{end}}
