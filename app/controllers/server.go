@@ -139,6 +139,7 @@ func delete(w http.ResponseWriter, r *http.Request) {
 
 
 //画像情報の更新PUT or DELETEメソッド（Good, Nope）
+//cookieがあればfavoriteリストに画像を登録
 func evaluate(w http.ResponseWriter, r *http.Request) {
 	getImg := models.GetImgById(r.FormValue("id"))
 
