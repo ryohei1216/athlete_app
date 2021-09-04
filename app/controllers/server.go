@@ -13,7 +13,17 @@ import (
 )
 
 //HTMLを生成する
-func generateHTML(w http.ResponseWriter, data interface{}, filenames ...string) {
+func generateHTML(w http.ResponseWriter, r *http.Request, data interface{}, filenames ...string) {
+
+	// Cookieがあれば"header"を"private_header"に変更
+	if getCookie(w, r) {
+		for index, filename := range filenames {
+			if filename == "header" {
+				filenames[index] = "private_header"
+			}
+		}
+		fmt.Println(filenames)
+	}
 	var files []string
 	for _, file := range filenames {
 		files = append(files, fmt.Sprintf("./app/views/templates/%s.html", file))
@@ -29,30 +39,30 @@ func top(w http.ResponseWriter, r *http.Request) {
 	sort.Slice(images, func(i, j int) bool {
 		return images[i].Good > images[j].Good
 	})
-	generateHTML(w, images, "layout", "top", "header")
+	generateHTML(w, r, images, "layout", "top", "header")
 }
 
 //asian表示
 func asian(w http.ResponseWriter, r *http.Request) {
 	images := models.GetImgByRace("asian")
-	generateHTML(w, images, "layout", "top", "header")
+	generateHTML(w, r, images, "layout", "top", "header")
 }
 
 //white表示
 func white(w http.ResponseWriter, r *http.Request) {
 	images := models.GetImgByRace("white")
-	generateHTML(w, images, "layout", "top", "header")
+	generateHTML(w, r, images, "layout", "top", "header")
 }
 
 //black表示
 func black(w http.ResponseWriter, r *http.Request) {
 	images := models.GetImgByRace("black")
-	generateHTML(w, images, "layout", "top", "header")
+	generateHTML(w, r, images, "layout", "top", "header")
 }
 
 //画像アップロードトップ画面
 func upload(w http.ResponseWriter, r *http.Request) {
-	generateHTML(w, nil, "layout", "upload", "header")
+	generateHTML(w, r, nil, "layout", "upload", "header")
 }
 
 
@@ -164,7 +174,7 @@ func evaluate(w http.ResponseWriter, r *http.Request) {
 
 //SignUp
 func signUp (w http.ResponseWriter, r *http.Request) {
-	generateHTML(w, nil, "layout", "signup", "header")
+	generateHTML(w, r, nil, "layout", "signup", "header")
 }
 
 //登録するAPI
@@ -179,24 +189,29 @@ func register (w http.ResponseWriter, r *http.Request) {
 }
 
 func login (w http.ResponseWriter, r *http.Request) {
-	generateHTML(w, nil, "layout", "login", "header")
+	fmt.Println("debug")
+	generateHTML(w, r, nil, "layout", "login", "header")
 }
 
 //ログインするAPI
 func logging (w http.ResponseWriter, r *http.Request) {
+	
 	var user = models.User {
 		Mail: r.FormValue("mail"),
 		Password: r.FormValue("password"),
 	}
-
-	isLogin := user.Login(w)
+	isLogin := user.Login()
 	if isLogin {
 		setCookie(w, r, user)
 	}
+	//topにリダイレクト
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 
+
 func InitServer() {
+	
 	files := http.FileServer(http.Dir("app/views"))
 	http.Handle("/static/", http.StripPrefix("/static/", files))
 
@@ -212,6 +227,7 @@ func InitServer() {
 	http.HandleFunc("/register", register)
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/logging", logging)
+	http.HandleFunc("/deleteCookie", deleteCookie)
 
   http.ListenAndServe("127.0.0.1:8080", nil)
 }
