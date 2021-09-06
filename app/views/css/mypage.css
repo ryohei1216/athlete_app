@@ -1,0 +1,6 @@
+.images {
+  display: flex;
+}
+.image-wrap {
+  margin: 10px;
+}

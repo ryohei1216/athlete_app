@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"log"
+	"net/http"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -77,6 +78,28 @@ func GetImgByRace(race string) ([]Image) {
 		}
 		images = append(images, img)
 	}
+	return images
+}
+
+func GetImgByUser(h []*http.Cookie) []string {
+	cmd := "SELECT * FROM " + h[0].Value
+	rows, err := db.Query(cmd)
+	if err != nil {
+		fmt.Println("個人のお気に入り写真取得失敗")
+		fmt.Println(err)
+	}
+	defer rows.Close()
+
+	var images []string
+	for rows.Next() {
+		var filename string
+		err = rows.Scan(&filename)
+		if err != nil {
+			fmt.Println("rows.scan中にエラー")
+		}
+		images = append(images, filename)
+	}
+
 	return images
 }
 
