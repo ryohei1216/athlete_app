@@ -14,15 +14,13 @@ import (
 
 //HTMLを生成する
 func generateHTML(w http.ResponseWriter, r *http.Request, data interface{}, filenames ...string) {
-
 	// Cookieがあれば"header"を"private_header"に変更
-	if getCookie(w, r) {
+	if _, err := models.GetCookie(w, r); err == nil {
 		for index, filename := range filenames {
 			if filename == "header" {
 				filenames[index] = "private_header"
 			}
 		}
-		fmt.Println(filenames)
 	}
 	var files []string
 	for _, file := range filenames {
@@ -45,18 +43,27 @@ func top(w http.ResponseWriter, r *http.Request) {
 //asian表示
 func asian(w http.ResponseWriter, r *http.Request) {
 	images := models.GetImgByRace("asian")
+	sort.Slice(images, func(i, j int) bool {
+		return images[i].Good > images[j].Good
+	})
 	generateHTML(w, r, images, "layout", "top", "header")
 }
 
 //white表示
 func white(w http.ResponseWriter, r *http.Request) {
 	images := models.GetImgByRace("white")
+	sort.Slice(images, func(i, j int) bool {
+		return images[i].Good > images[j].Good
+	})
 	generateHTML(w, r, images, "layout", "top", "header")
 }
 
 //black表示
 func black(w http.ResponseWriter, r *http.Request) {
 	images := models.GetImgByRace("black")
+	sort.Slice(images, func(i, j int) bool {
+		return images[i].Good > images[j].Good
+	})
 	generateHTML(w, r, images, "layout", "top", "header")
 }
 
@@ -143,9 +150,15 @@ func delete(w http.ResponseWriter, r *http.Request) {
 func evaluate(w http.ResponseWriter, r *http.Request) {
 	getImg := models.GetImgById(r.FormValue("id"))
 
-	switch r.FormValue("preference"){
+	switch r.FormValue("preference") {
 		case "good":
 			getImg.Good += 1
+			// Cookieの取得
+			h, err := models.GetCookie(w, r)
+			if err == nil {
+				//個人Dbに登録
+				models.RegisterGoodImg(w, r, h)
+			}
 
 		case "nope":
 			if getImg.Nope +1 >= 10 {
@@ -167,10 +180,10 @@ func evaluate(w http.ResponseWriter, r *http.Request) {
 	}
 	getImg.UpdateImg()
 
-	race := "/" + getImg.Race
+	// race := "/" + getImg.Race
 
-	//元のページにリダイレクト
-	http.Redirect(w, r, race, http.StatusFound)
+	//topページにリダイレクト
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 //SignUp
@@ -178,7 +191,7 @@ func signUp (w http.ResponseWriter, r *http.Request) {
 	generateHTML(w, r, nil, "layout", "signup", "header")
 }
 
-//登録するAPI
+//ユーザ登録するAPI
 func register (w http.ResponseWriter, r *http.Request) {
 	var user = models.User {
 		Name: r.FormValue("name"),
@@ -190,7 +203,6 @@ func register (w http.ResponseWriter, r *http.Request) {
 }
 
 func login (w http.ResponseWriter, r *http.Request) {
-	fmt.Println("debug")
 	generateHTML(w, r, nil, "layout", "login", "header")
 }
 
@@ -203,11 +215,12 @@ func logging (w http.ResponseWriter, r *http.Request) {
 	}
 	isLogin := user.Login()
 	if isLogin {
-		setCookie(w, r, user)
+		models.SetCookie(w, r, user)
 	}
 	//topにリダイレクト
 	http.Redirect(w, r, "/", http.StatusFound)
 }
+
 
 
 
@@ -228,7 +241,7 @@ func InitServer() {
 	http.HandleFunc("/register", register)
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/logging", logging)
-	http.HandleFunc("/deleteCookie", deleteCookie)
+	http.HandleFunc("/deleteCookie", models.DeleteCookie)
 
   http.ListenAndServe("127.0.0.1:8080", nil)
 }

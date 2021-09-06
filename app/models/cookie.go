@@ -1,12 +1,11 @@
-package controllers
+package models
 
 import (
 	"fmt"
-	"main/app/models"
 	"net/http"
 )
 
-func setCookie (w http.ResponseWriter, r *http.Request, user models.User) {
+func SetCookie (w http.ResponseWriter, r *http.Request, user User) {
 	c1 := http.Cookie{
 		Name:     "mail",
 		Value:    user.Mail,
@@ -22,24 +21,27 @@ func setCookie (w http.ResponseWriter, r *http.Request, user models.User) {
 	w.Header().Add("Set-Cookie", c2.String())
 }
 
-func getCookie (w http.ResponseWriter, r *http.Request) bool {
-	h := r.Header["Cookie"]
-	if h != nil {
-		fmt.Println("Cookie取得完了")
-		return true
-	} else {
-		return false
+func GetCookie (w http.ResponseWriter, r *http.Request)  ([]*http.Cookie, error)  {
+	//Cookieの確認するため最初のcookieだけでerror確認
+	_, err := r.Cookie("mail")
+	if err != nil {
+		return nil, fmt.Errorf("Cookieはセットされていない")
+		} else {
+		h := r.Cookies()
+		return  h, nil
 	}
 }
 
-func deleteCookie (w http.ResponseWriter, r *http.Request) {
+func DeleteCookie (w http.ResponseWriter, r *http.Request) {
 	c1, err := r.Cookie("mail")
 	if err != nil {
-		fmt.Println("cookie取得失敗")
+		fmt.Println(err)
+		fmt.Println("delete_cookie取得失敗")
 	}
 	c2, err := r.Cookie("password")
 	if err != nil {
-		fmt.Println("cookie取得失敗")
+		fmt.Println(err)
+		fmt.Println("delete_cookie取得失敗")
 	}
 
 	fmt.Println(c1, c2)

@@ -37,7 +37,7 @@ func (user User) SignUp(w http.ResponseWriter) {
 }
 
 //Login
-func (user User) Login() bool {	
+func (user *User) Login() bool {	
 	cmd := "SELECT * FROM users WHERE mail = $1 AND password = $2"
 	err := db.QueryRow(cmd, user.Mail, user.Password).Scan(&user.Name, &user.Mail, &user.Password)
 	if err != nil {
@@ -59,4 +59,39 @@ func GetUser(mail string, password string) User {
 		fmt.Println(err)
 	}
 	return user
+}
+
+// Goodした画像を個人DBに登録
+func RegisterGoodImg (w http.ResponseWriter, r *http.Request, h []*http.Cookie) {
+
+	mail_address := h[0].Value
+	fmt.Println(mail_address)
+
+	cmd := "SELECT * FROM " + mail_address 
+	cmd2 := "INSERT INTO " + mail_address + " VALUES ($1)"
+	id := r.FormValue("id")
+
+	//既に登録済みかどうかの確認
+	rows, err := db.Query(cmd)
+	if err != nil {
+		fmt.Println("既に登録されているIDの取得失敗")
+		fmt.Println(err)
+	}
+	defer rows.Close()
+
+	var registedId string
+	for rows.Next() {
+		rows.Scan(&registedId)
+		if id == registedId {
+			fmt.Println("既にこの画像は登録しています")
+			return
+		}
+	}
+	
+	//個人DBへの登録
+	_, err = db.Exec(cmd2, id)
+	if err != nil {
+		fmt.Println("登録失敗")
+		fmt.Println(err)
+	}
 }
