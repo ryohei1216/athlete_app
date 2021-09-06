@@ -1,0 +1,11 @@
+{{define "content"}}
+<h1>My Page</h1>
+
+<div class="images">
+  {{range .}}
+  <div class="image-wrap">
+    <img src="/static/images/{{.}}" alt="" />
+  </div>
+  {{end}}
+</div>
+{{end}}

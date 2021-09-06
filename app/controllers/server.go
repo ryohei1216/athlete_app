@@ -221,6 +221,22 @@ func logging (w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
+func myPage(w http.ResponseWriter, r *http.Request) {
+	h, err := models.GetCookie(w, r)
+	if err != nil {
+		fmt.Println("Cookie取得失敗")
+		fmt.Println(err)
+	}
+	imagesId:= models.GetImgByUser(h)
+
+	var images []string
+	for _, id := range imagesId {
+		image := models.GetImgById(id)
+		images = append(images, image.Filename)
+	}
+	generateHTML(w, r, images, "layout", "mypage", "header")
+}
+
 
 
 
@@ -242,6 +258,7 @@ func InitServer() {
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/logging", logging)
 	http.HandleFunc("/deleteCookie", models.DeleteCookie)
+	http.HandleFunc("/mypage", myPage)
 
   http.ListenAndServe("127.0.0.1:8080", nil)
 }
