@@ -1,0 +1,12 @@
+{{define "content"}}
+<h1>Athlete Page</h1>
+<h3>{{with index . 0}}{{.Name}}{{end}}</h3>
+
+<div class="images">
+  {{range .}}
+  <div class="image-wrap">
+    <img src="/static/images/{{.Filename}}" alt="" />
+  </div>
+  {{end}}
+</div>
+{{end}}

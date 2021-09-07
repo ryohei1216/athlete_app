@@ -15,6 +15,7 @@ type Image struct {
 	Filename  string
 	Good 			int
 	Nope    	int
+	Name			string
 }
 
 //全画像情報の取得
@@ -29,7 +30,7 @@ func GetAllImg() ([]Image) {
 	var images []Image
 
 	for rows.Next() {
-		if err := rows.Scan(&img.Id, &img.Race, &img.Filename, &img.Good, &img.Nope); err != nil {
+		if err := rows.Scan(&img.Id, &img.Race, &img.Filename, &img.Good, &img.Nope, &img.Name); err != nil {
 			log.Fatal(err)
 		}
 		images = append(images, img)
@@ -42,7 +43,7 @@ func  GetImgById(id string) Image{
 	cmd := "SELECT * FROM images WHERE id = $1"
 	
 	var img Image
-	err := db.QueryRow(cmd, id).Scan(&img.Id, &img.Race, &img.Filename, &img.Good, &img.Nope)
+	err := db.QueryRow(cmd, id).Scan(&img.Id, &img.Race, &img.Filename, &img.Good, &img.Nope, &img.Name)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -54,7 +55,7 @@ func  GetImgByFilename(filename string) Image {
 	cmd := "SELECT * FROM images WHERE filename = $1"
 	
 	var img Image
-	err := db.QueryRow(cmd, filename).Scan(&img.Id, &img.Race, &img.Filename, &img.Good, &img.Nope)
+	err := db.QueryRow(cmd, filename).Scan(&img.Id, &img.Race, &img.Filename, &img.Good, &img.Nope, &img.Name)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -73,13 +74,34 @@ func GetImgByRace(race string) ([]Image) {
 	
 	for rows.Next() {
 		var img Image
-		if err := rows.Scan(&img.Id, &img.Race, &img.Filename, &img.Good, &img.Nope); err != nil {
+		if err := rows.Scan(&img.Id, &img.Race, &img.Filename, &img.Good, &img.Nope, &img.Name); err != nil {
 			log.Fatal(err)
 		}
 		images = append(images, img)
 	}
 	return images
 }
+
+//特定の画像情報の取得(name)
+func  GetImgByName(name string) []Image {
+	rows, err := db.Query("SELECT * FROM images WHERE name = $1", name)
+	if err != nil {
+		log.Println(err)
+	}
+	defer rows.Close()
+
+	var images []Image
+	
+	for rows.Next() {
+		var img Image
+		if err := rows.Scan(&img.Id, &img.Race, &img.Filename, &img.Good, &img.Nope, &img.Name); err != nil {
+			log.Fatal(err)
+		}
+		images = append(images, img)
+	}
+	return images
+}
+
 
 func GetImgByUser(h []*http.Cookie) []string {
 	cmd := "SELECT * FROM " + h[0].Value
@@ -106,11 +128,10 @@ func GetImgByUser(h []*http.Cookie) []string {
 
 //画像の保存とDBへの格納
 func (img Image) InsertImg() {
-	cmd := "INSERT INTO images (id, race, filename, Good, Nope) VALUES ($1, $2, $3, $4, $5)"
-	_, err := db.Exec(cmd, img.Id, img.Race, img.Filename, img.Good, img.Nope)
+	cmd := "INSERT INTO images (id, race, filename, Good, Nope, Name) VALUES ($1, $2, $3, $4, $5, $6)"
+	_, err := db.Exec(cmd, img.Id, img.Race, img.Filename, img.Good, img.Nope, img.Name)
 	if err != nil {
-		fmt.Println("InsertImg")
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 }
 
@@ -132,8 +153,5 @@ func (img Image) UpdateImg() {
 		panic(err)
 	}
 }
-
-
-
 
 

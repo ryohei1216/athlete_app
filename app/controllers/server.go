@@ -85,22 +85,24 @@ func uploading(w http.ResponseWriter, r *http.Request){
 	newFile, err := os.Create(filepath.Join("./app/views/images/", header.Filename))
 	if err != nil {
 		fmt.Println("ファイル作成失敗")
-		panic(err)
+		fmt.Println(err)
 	}
 	defer newFile.Close()
 	
 	fileStr := string(data)
 	_, err = newFile.Write([]byte(fileStr))
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 	race := r.FormValue("race")
+	name := r.FormValue("name")
 	img := models.Image{
 		Id: RandomString(10),
 		Race: race,
 		Filename: header.Filename,
 		Good: 0,
 		Nope: 0,
+		Name: name,
 	}
 	// 同じ名前のファイルがある場合処理しない
 	if models.GetImgByFilename(img.Filename).Filename != ""  {
@@ -237,6 +239,13 @@ func myPage(w http.ResponseWriter, r *http.Request) {
 	generateHTML(w, r, images, "layout", "mypage", "header")
 }
 
+func athletepage(w http.ResponseWriter, r *http.Request) {
+	athleteName := r.FormValue("name")
+	images := models.GetImgByName(athleteName)
+	fmt.Println(images)
+	generateHTML(w, r, images, "layout", "athletepage", "header")
+}
+
 
 
 
@@ -259,6 +268,7 @@ func InitServer() {
 	http.HandleFunc("/logging", logging)
 	http.HandleFunc("/deleteCookie", models.DeleteCookie)
 	http.HandleFunc("/mypage", myPage)
+	http.HandleFunc("/athletepage", athletepage)
 
   http.ListenAndServe("127.0.0.1:8080", nil)
 }
