@@ -137,6 +137,10 @@ func delete(w http.ResponseWriter, r *http.Request) {
 
 	img.DeleteImg()
 
+	//個人Dbから削除
+	img.DeleteImgByUser()
+	
+
 	deleteFilePath := "./app/views/images/" + img.Filename
 	err := os.Remove(deleteFilePath)
 	if err != nil {
@@ -178,6 +182,10 @@ func evaluate(w http.ResponseWriter, r *http.Request) {
 				client := &http.Client{}
 				client.Do(req)
 			}
+
+			//個人Dbから削除
+			getImg.DeleteImgByUser()
+			
 		getImg.Nope += 1
 	}
 	getImg.UpdateImg()

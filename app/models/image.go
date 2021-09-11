@@ -145,6 +145,30 @@ func (img Image) DeleteImg() {
 	}
 }
 
+//個人DBから削除
+func (img *Image) DeleteImgByUser() {
+	cmd := "SELECT name FROM users"
+	rows, err := db.Query(cmd)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var name string
+		err = rows.Scan(&name)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		cmd2 := "DELETE FROM " + name + " WHERE good_list = $1"
+		_, err := db.Exec(cmd2, img.Id)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
 //画像情報の更新
 func (img Image) UpdateImg() {
 	cmd := "UPDATE images SET good = $1, nope = $2 WHERE id = $3"
