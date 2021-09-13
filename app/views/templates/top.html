@@ -13,6 +13,7 @@
   {{ range . }}
   <div class="person">
     <img src="/static/images/{{ .Filename }}" />
+    <a href="/athletepage?name={{.Name}}">{{.Name}}</a>
     <p>テキストテキストテキストテキストテキストテキスト</p>
     <p>テキストテキストテキストテキストテキストテキスト</p>
     <a href="http://127.0.0.1:8080/evaluate?id={{.Id}}&preference=good"

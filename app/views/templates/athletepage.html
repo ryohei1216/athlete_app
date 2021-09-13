@@ -1,0 +1,34 @@
+{{define "content"}}
+<h1>Athlete Page</h1>
+<h2>{{with index .Images 0}}{{.Name}}{{end}}</h2>
+<br />
+<h3 class="wiki">{{.Wiki.description}}</h3>
+<h3 class="wiki">{{.Wiki.excerpt}}</h3>
+
+<a
+  href="http://ja.wikipedia.org/w/rest.php/v1/page/{{with index .Images 0}}{{.Name}}{{end}}/html"
+  target="blank"
+  >wikiで調べる</a
+>
+
+<div class="images">
+  {{range .Images}}
+  <div class="image-wrap">
+    <img src="/static/images/{{.Filename}}" alt="" />
+  </div>
+  {{end}}
+</div>
+<div class="tweets">
+  <h3>twitterの様子</h3>
+  {{range .Tweets}}
+  <div class="tweet-wrap">
+    <p>#####################################</p>
+    <p>{{.FullText}}</p>
+    <p>###################</p>
+    <br />
+    <br />
+  </div>
+  {{end}}
+</div>
+
+{{end}}

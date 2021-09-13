@@ -4,12 +4,15 @@ import (
 	"fmt"
 	"io/ioutil"
 	"main/app/models"
+	"main/app/models/twitter_model"
 	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
 	"text/template"
+
+	"github.com/dghubble/go-twitter/twitter"
 )
 
 //HTMLを生成する
@@ -85,22 +88,24 @@ func uploading(w http.ResponseWriter, r *http.Request){
 	newFile, err := os.Create(filepath.Join("./app/views/images/", header.Filename))
 	if err != nil {
 		fmt.Println("ファイル作成失敗")
-		panic(err)
+		fmt.Println(err)
 	}
 	defer newFile.Close()
 	
 	fileStr := string(data)
 	_, err = newFile.Write([]byte(fileStr))
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 	race := r.FormValue("race")
+	name := r.FormValue("name")
 	img := models.Image{
 		Id: RandomString(10),
 		Race: race,
 		Filename: header.Filename,
 		Good: 0,
 		Nope: 0,
+		Name: name,
 	}
 	// 同じ名前のファイルがある場合処理しない
 	if models.GetImgByFilename(img.Filename).Filename != ""  {
@@ -131,17 +136,21 @@ func delete(w http.ResponseWriter, r *http.Request) {
 		Filename: r.FormValue("filename"),
 	}
 	
-	race := "/" +r.FormValue("race")
-
+	
 	img.DeleteImg()
-
+	
+	//個人Dbから削除
+	img.DeleteImgByUser()
+	
+	
 	deleteFilePath := "./app/views/images/" + img.Filename
 	err := os.Remove(deleteFilePath)
 	if err != nil {
 		panic(err)
 	}
 	//topにリダイレクト
-	http.Redirect(w, r, race, http.StatusFound)
+	// race := "/" +r.FormValue("race")
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 
@@ -176,6 +185,10 @@ func evaluate(w http.ResponseWriter, r *http.Request) {
 				client := &http.Client{}
 				client.Do(req)
 			}
+
+			//個人Dbから削除
+			getImg.DeleteImgByUser()
+			
 		getImg.Nope += 1
 	}
 	getImg.UpdateImg()
@@ -237,6 +250,29 @@ func myPage(w http.ResponseWriter, r *http.Request) {
 	generateHTML(w, r, images, "layout", "mypage", "header")
 }
 
+func athletepage(w http.ResponseWriter, r *http.Request) {
+	athleteName := r.FormValue("name")
+	images := models.GetImgByName(athleteName)
+	tweets := twitter_model.SearchTweets(athleteName)
+	wiki := models.GetWiki(athleteName)
+	data := struct {
+		Images    []models.Image
+		Tweets 		[]twitter.Tweet
+		Wiki      map[string]interface{}
+	}{
+		Images: images,
+		Tweets: tweets,
+		Wiki: wiki,
+	}
+	// for _, tweet := range tweets {
+	// 	fmt.Println("***************************")
+	// 	fmt.Println(tweet.Entities)
+	// 	fmt.Println("***************************")
+	// }
+	models.GetWiki(athleteName)
+	generateHTML(w, r, data, "layout", "athletepage", "header")
+}
+
 
 
 
@@ -259,6 +295,7 @@ func InitServer() {
 	http.HandleFunc("/logging", logging)
 	http.HandleFunc("/deleteCookie", models.DeleteCookie)
 	http.HandleFunc("/mypage", myPage)
+	http.HandleFunc("/athletepage", athletepage)
 
   http.ListenAndServe("127.0.0.1:8080", nil)
 }
