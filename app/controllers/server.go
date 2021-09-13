@@ -4,12 +4,15 @@ import (
 	"fmt"
 	"io/ioutil"
 	"main/app/models"
+	"main/app/models/twitter_model"
 	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
 	"text/template"
+
+	"github.com/dghubble/go-twitter/twitter"
 )
 
 //HTMLを生成する
@@ -133,21 +136,21 @@ func delete(w http.ResponseWriter, r *http.Request) {
 		Filename: r.FormValue("filename"),
 	}
 	
-	race := "/" +r.FormValue("race")
-
+	
 	img.DeleteImg()
-
+	
 	//個人Dbから削除
 	img.DeleteImgByUser()
 	
-
+	
 	deleteFilePath := "./app/views/images/" + img.Filename
 	err := os.Remove(deleteFilePath)
 	if err != nil {
 		panic(err)
 	}
 	//topにリダイレクト
-	http.Redirect(w, r, race, http.StatusFound)
+	// race := "/" +r.FormValue("race")
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 
@@ -250,8 +253,24 @@ func myPage(w http.ResponseWriter, r *http.Request) {
 func athletepage(w http.ResponseWriter, r *http.Request) {
 	athleteName := r.FormValue("name")
 	images := models.GetImgByName(athleteName)
-	fmt.Println(images)
-	generateHTML(w, r, images, "layout", "athletepage", "header")
+	tweets := twitter_model.SearchTweets(athleteName)
+	wiki := models.GetWiki(athleteName)
+	data := struct {
+		Images    []models.Image
+		Tweets 		[]twitter.Tweet
+		Wiki      map[string]interface{}
+	}{
+		Images: images,
+		Tweets: tweets,
+		Wiki: wiki,
+	}
+	// for _, tweet := range tweets {
+	// 	fmt.Println("***************************")
+	// 	fmt.Println(tweet.Entities)
+	// 	fmt.Println("***************************")
+	// }
+	models.GetWiki(athleteName)
+	generateHTML(w, r, data, "layout", "athletepage", "header")
 }
 
 
