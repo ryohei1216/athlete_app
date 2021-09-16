@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,12 +11,12 @@ import (
 
 
 type Image struct {
-	Id 	  		string
-	Race  		string
-	Filename  string
-	Good 			int
-	Nope    	int
-	Name			string
+	Id 	  		string  `json:"id"`
+	Race  		string	`json:"race"`
+	Filename  string	`json:"filename"`
+	Good 			int			`json:"good"`
+	Nope    	int			`json:"nope"`
+	Name			string	`json:"name"`
 }
 
 //全画像情報の取得
@@ -27,7 +28,7 @@ func GetAllImg() ([]Image) {
 	defer rows.Close()
 
 	var img Image
-	var images []Image
+	var images []Image 
 
 	for rows.Next() {
 		if err := rows.Scan(&img.Id, &img.Race, &img.Filename, &img.Good, &img.Nope, &img.Name); err != nil {
@@ -179,3 +180,31 @@ func (img Image) UpdateImg() {
 }
 
 
+//React用
+//全画像情報の取得
+func ReactGetAllImg(w http.ResponseWriter, r *http.Request)  {
+	rows, err := db.Query("SELECT * FROM images")
+	if err != nil {
+		log.Println(err)
+	}
+	defer rows.Close()
+
+	var img Image
+	var images []Image 
+
+	for rows.Next() {
+		if err := rows.Scan(&img.Id, &img.Race, &img.Filename, &img.Good, &img.Nope, &img.Name); err != nil {
+			log.Fatal(err)
+		}
+		images = append(images, img)
+	}
+	//API GetリクエストのためにリクエストBodyにセット
+	//CORSの制限全許可するためのヘッダをセット
+	w.Header().Set("Content-type", "application/json")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+  w.Header().Set("Access-Control-Allow-Origin", "*")
+  w.Header().Set("Access-Control-Allow-Methods","GET, POST, PUT, DELETE, OPTIONS" )
+	json.NewEncoder(w).Encode(images)
+
+
+}
