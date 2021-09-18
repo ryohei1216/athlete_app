@@ -1,8 +1,12 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import Image from "./App";
+import { Image } from "./App";
 
-const Top = (images: typeof Image[]) => {
+interface Props {
+  images: Image[];
+}
+
+const Top: React.VFC<Props> = (props) => {
   return (
     <>
       <h1>Athlete App</h1>
