@@ -1,12 +1,25 @@
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { Image } from "./App";
+import Ranking from "./Ranking";
 
-interface Props {
-  images: Image[];
+export interface Image {
+  id: string;
+  race: string;
+  filename: string;
+  good: number;
+  nop: number;
+  name: string;
 }
 
-const Top: React.VFC<Props> = (props) => {
+const Top = () => {
+  const [images, setImages] = useState<Image[]>([]);
+
+  //非同期処理でDBから画像を取得
+  useEffect(() => {
+    axios.get("http://127.0.0.1:8080/reactGetImg").then((res) => {
+      setImages(res.data);
+    });
+  }, []);
   return (
     <>
       <h1>Athlete App</h1>
@@ -17,11 +30,10 @@ const Top: React.VFC<Props> = (props) => {
             src="https://www.rikujyokyogi.co.jp/wp-content/uploads/2021/03/EN4A0178.jpg"
             alt=""
           />
-          <p>テキストテキストテキストテキストテキストテキスト</p>
-          <p>テキストテキストテキストテキストテキストテキスト</p>
+          <Ranking images={images} />
         </div>
       </div>
-      <p>{props.images}</p>
+      <p></p>
     </>
   );
 };
