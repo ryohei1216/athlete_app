@@ -7,7 +7,7 @@ export interface Image {
   race: string;
   filename: string;
   good: number;
-  nop: number;
+  nope: number;
   name: string;
 }
 
