@@ -1,19 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import Top from "./Top";
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <p>App.tsx</p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <p>This is App.tsx</p>
       </header>
+      <Top />
     </div>
   );
 }

@@ -297,5 +297,8 @@ func InitServer() {
 	http.HandleFunc("/mypage", myPage)
 	http.HandleFunc("/athletepage", athletepage)
 
+	//React API用
+	http.HandleFunc("/reactGetImg", models.ReactGetAllImg)
+
   http.ListenAndServe("127.0.0.1:8080", nil)
 }
