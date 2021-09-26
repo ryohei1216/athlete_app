@@ -17,6 +17,7 @@ type Image struct {
 	Good 			int			`json:"good"`
 	Nope    	int			`json:"nope"`
 	Name			string	`json:"name"`
+	Url				string  `json:"url"`
 }
 
 //全画像情報の取得
@@ -135,6 +136,14 @@ func (img Image) InsertImg() {
 		fmt.Println(err)
 	}
 }
+//画像の保存とDBへの格納(React)
+func (img Image) ReactInsertImg() {
+	cmd := "INSERT INTO images (id, race, filename, Good, Nope, Name) VALUES ($1, $2, $3, $4, $5, $6, $7)"
+	_, err := db.Exec(cmd, img.Id, img.Race, img.Filename, img.Good, img.Nope, img.Name, img.Url)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
 
 
 //画像の削除
@@ -198,12 +207,12 @@ func ReactGetAllImg(w http.ResponseWriter, r *http.Request)  {
 		}
 		images = append(images, img)
 	}
-	//API GetリクエストのためにリクエストBodyにセット
 	//CORSの制限全許可するためのヘッダをセット
 	w.Header().Set("Content-type", "application/json")
 	w.Header().Set("Access-Control-Allow-Headers", "*")
   w.Header().Set("Access-Control-Allow-Origin", "*")
   w.Header().Set("Access-Control-Allow-Methods","GET, POST, PUT, DELETE, OPTIONS" )
+	//API GetリクエストのためにリクエストBodyにセット
 	json.NewEncoder(w).Encode(images)
 
 

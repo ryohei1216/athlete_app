@@ -274,6 +274,37 @@ func athletepage(w http.ResponseWriter, r *http.Request) {
 }
 
 
+//React用
+//画像をアップロードするPOSTメソッド
+func reactUploading(w http.ResponseWriter, r *http.Request){
+	// file, header, err := r.FormFile("uploading")
+	// if err != nil {
+	// 	fmt.Println("読み込み失敗")
+	// }
+	// defer file.Close()
+
+	fmt.Println(r.Body)
+	
+	// race := r.FormValue("race")
+	// name := r.FormValue("name")
+	// url := r.FormValue("url")
+	// img := models.Image{
+	// 	Id: RandomString(10),
+	// 	Race: race,
+	// 	Filename: header.Filename,
+	// 	Good: 0,
+	// 	Nope: 0,
+	// 	Name: name,
+	// 	Url: url,
+	// }
+	// 同じ名前のファイルがある場合処理しない
+	// if models.GetImgByFilename(img.Filename).Filename != ""  {
+	// 	fmt.Println("同じ名前のファイルが存在します")
+	// } else {
+	// 	img.ReactInsertImg()
+	// }
+}
+
 
 
 func InitServer() {
@@ -299,6 +330,7 @@ func InitServer() {
 
 	//React API用
 	http.HandleFunc("/reactGetImg", models.ReactGetAllImg)
+	http.HandleFunc("/reactUploading", reactUploading)
 
   http.ListenAndServe("127.0.0.1:8080", nil)
 }
